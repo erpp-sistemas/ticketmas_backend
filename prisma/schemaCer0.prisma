@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/cer0"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_SER0")
+}
+
+model areas {
+  id     Int     @id @default(autoincrement())
+  area   String
+  activo Boolean
+  roles  rol[]
+}
+
+model rol {
+  id_rol     Int           @id @default(autoincrement())
+  id_area     Int
+  nombre      String
+  activo      Boolean
+  vinculacion usuario_rol[]
+  areas       areas?        @relation(fields: [id_area], references: [id])
+}
+
+model usuario_rol {
+  id_usuario_rol Int      @id @default(autoincrement())
+  id_usuario     Int      @unique
+  id_rol         Int
+  activo         Boolean
+  usuario        usuario? @relation("rol_usuario", fields: [id_usuario], references: [id_usuario], onUpdate: NoAction)
+  rol      rol? @relation(fields: [id_rol], references: [id_rol])
+}
+
+model usuario {
+  id_usuario       Int          @id @default(autoincrement())
+  nombre           String
+  apellido_paterno String
+  apellido_materno String
+  foto             String
+  activo           Boolean      @default(true)
+  acceso           acceso?      @relation("acceso_usuario")
+  rol              usuario_rol? @relation("rol_usuario")
+}
+
+model acceso {
+  id_acceso      Int      @id @default(autoincrement())
+  id_usuario     Int      @unique
+  usuario        String
+  contrasena     String   @map("contraseña")
+  usuario_acceso usuario? @relation("acceso_usuario", fields: [id_usuario], references: [id_usuario], onUpdate: NoAction)
+}

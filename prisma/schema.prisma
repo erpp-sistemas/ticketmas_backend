@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_TASKMAS")
+}
+model usuarios_vinculaciones {
+  id                   Int                      @id
+  nombre               String
+  apellidos            String
+  foto                 String
+  activo               Boolean                  @default(true)
+  asignaciones         asignaciones[]           @relation("VinculacionAsignaciones")
+  asignaciones_creadas asignaciones[]           @relation("VinculacionAsignacionesCreadas")
+  re_asignaciones      re_asignaciones[]
+  notificaciones       notificaciones[]
+  comentarios          comentarios[]
+  etiquetas            asignaciones_etiquetas[]
+}
+
+model notificaciones {
+  id                     Int                     @id @default(autoincrement())
+  vinculacion_id         Int
+  ticket_id              Int
+  visto                  Boolean                 @default(true)
+  mensaje                String
+  created_at             DateTime                @default(now())
+  activo                 Boolean                 @default(true)
+  usuarios_vinculaciones usuarios_vinculaciones? @relation(fields: [vinculacion_id], references: [id])
+}
+
+model asignaciones {
+  id                       Int                    @id @default(autoincrement())
+  vinculacion_id           Int
+  vinculacion_asignador_id Int
+  ticket_id                String                 @db.NVarChar(36)
+  created_at               DateTime               @default(now())
+  vinculacion_usuario      usuarios_vinculaciones @relation("VinculacionAsignaciones", fields: [vinculacion_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  asignador_usuario        usuarios_vinculaciones @relation("VinculacionAsignacionesCreadas", fields: [vinculacion_asignador_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  re_asignaciones          re_asignaciones[]
+  tickets                  tickets                @relation(fields: [ticket_id], references: [id])
+}
+
+model re_asignaciones {
+  id              Int                     @id @default(autoincrement())
+  asignacion_id   Int
+  re_asignador_id Int
+  ticket_id       String
+  created_at      DateTime                @default(now())
+  re_asignador    usuarios_vinculaciones? @relation(fields: [re_asignador_id], references: [id])
+  asignaciones    asignaciones?           @relation(fields: [asignacion_id], references: [id])
+}
+
+model prioridades {
+  id               Int       @id @default(autoincrement())
+  nombre_prioridad String
+  color            String
+  tickets          tickets[]
+}
+
+model estatus_ticket {
+  id             Int       @id @default(autoincrement())
+  nombre_estatus String
+  tickets        tickets[]
+}
+
+model etiquetas {
+  id                     Int                      @id @default(autoincrement())
+  nombre_etiqueta        String
+  color                  String
+  area_id                Int
+  tickets                tickets[]
+  asignaciones_etiquetas asignaciones_etiquetas[]
+}
+
+model asignaciones_etiquetas {
+  id                     Int                     @id @default(autoincrement())
+  vinculacion_id          Int
+  etiqueta_id            Int
+  created_at             DateTime                @default(now())
+  usuarios_vinculaciones usuarios_vinculaciones? @relation(fields: [vinculacion_id], references: [id])
+  etiquetas              etiquetas?              @relation(fields: [etiqueta_id], references: [id])
+}
+
+model tickets {
+  id             String          @id @db.NVarChar(36)
+  fecha_inicio   DateTime
+  fecha_fin      DateTime?
+  asunto         String
+  descripcion    String
+  prioridad_id   Int
+  estatus_id     Int
+  area_id        Int
+  etiqueta_id    Int
+  listas         listas_tareas[]
+  comentarios    comentarios[]
+  archivos       archivos[]
+  asignaciones   asignaciones[]
+  prioridad      prioridades     @relation(fields: [prioridad_id], references: [id])
+  estatus_ticket estatus_ticket  @relation(fields: [estatus_id], references: [id])
+  etiquetas      etiquetas       @relation(fields: [etiqueta_id], references: [id])
+}
+
+model listas_tareas {
+  id           Int      @id @default(autoincrement())
+  ticket_id    String?  @db.NVarChar(36)
+  titulo_lista String
+  created_at   DateTime @default(now())
+  treas        tareas[]
+  tickets      tickets? @relation(fields: [ticket_id], references: [id])
+}
+
+model tareas {
+  id            Int            @id @default(autoincrement())
+  lista_id      Int
+  nombre_tarea  String
+  completada    Boolean
+  created_at    DateTime       @default(now())
+  listas_tareas listas_tareas? @relation(fields: [lista_id], references: [id])
+}
+
+model archivos {
+  id                           Int                            @id @default(autoincrement())
+  ticket_id                    String?                        @db.NVarChar(36)
+  url                          String
+  created_at                   DateTime                       @default(now())
+  ticket                       tickets?                       @relation(fields: [ticket_id], references: [id])
+  archivo_adjuntos_comentarios archivos_adjuntos_comentarios?
+}
+
+model archivos_adjuntos_comentarios {
+  id            Int          @id @default(autoincrement())
+  archivo_id    Int          @unique
+  archivo       archivos     @relation(fields: [archivo_id], references: [id], onUpdate: NoAction)
+  comentario_id Int          @unique
+  comentario    comentarios? @relation(fields: [comentario_id], references: [id], onUpdate: NoAction)
+}
+
+model comentarios {
+  id                     Int                             @id @default(autoincrement())
+  vinculacion_id          Int
+  ticket_id              String?                         @db.NVarChar(36)
+  mensaje                String
+  created_at             DateTime                        @default(now())
+  usuarios_vinculaciones usuarios_vinculaciones?         @relation(fields: [vinculacion_id], references: [id])
+  archivos_adjuntos      archivos_adjuntos_comentarios[]
+  tickets                tickets?                        @relation(fields: [ticket_id], references: [id])
+}
