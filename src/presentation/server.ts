@@ -17,7 +17,7 @@ export default class Server{
         this.app.use(cookieParser())
         this.app.use(express.json())
         this.app.use(cors({
-            origin: ['http://localhost:5173'],
+            origin: ['http://localhost:5173',"http://localhost:3000"],
             credentials: true,
         }))
         

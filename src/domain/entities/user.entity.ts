@@ -35,7 +35,7 @@ export class UserEntity implements dataUser{
         this.nombre= nombre;
         this.apellido_materno= apellido_materno;
         this.apellido_paterno= apellido_paterno;
-        this.url_foto= "https://www.ser0.mx/ser0/image/usuario/"+url_foto ;
+        this.url_foto= url_foto ;
         this.area=area;
         this.rol=rol 
         this.email=email;
@@ -48,6 +48,7 @@ export class UserEntity implements dataUser{
 
         const {email,rol,nombre,apellido_paterno,id} = datasources;
 
+        
         // if (!id) throw 'Missign id';
         if (!nombre) throw CustomError.badRequest('Missing nombre');
         if (!apellido_paterno) throw CustomError.badRequest('Missing apellido paterno');

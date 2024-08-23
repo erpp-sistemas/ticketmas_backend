@@ -90,6 +90,7 @@ export class TicketsControllers  {
     }
 
     getAllTickets=async (req:Request,res:Response):Promise<void>=>{
+        console.log(req.cookies.token);
 
         const token = await JwtAdapter.validateToken(req.cookies.token);
                 

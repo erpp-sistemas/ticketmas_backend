@@ -19,12 +19,13 @@ export class TicketsRoutes{
         const ticketsController=new TicketsControllers(useRepository)
         //* Obtener los tickets
         router.get('/',manageErrors(ticketsController.getAllTickets))
+        //*Obtener ticket por id
+        router.get('/:id',manageErrors(ticketsController.getByIdTicket))
         //* Crear ticket
         router.post('/',manageErrors(ticketsController.createTicket))
         //*Editar ticket por id
         router.put('/:id',manageErrors(ticketsController.updateTicket))
-        //*Obtener ticket por id
-        router.get('/:id',manageErrors(ticketsController.getByIdTicket))
+       
         //* Pausar ticket por id
         router.get('/pausa/:id',manageErrors(ticketsController.pauseTicket))
         //* Reanudar ticket por id

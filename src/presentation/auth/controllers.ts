@@ -26,14 +26,11 @@ export class AuthController {
          const user= await new LoginUser(this.userRepository).execute(loginUserDto!)
          let {token, ...user_info} = user
          res.cookie('token', token, {
-             httpOnly: true, // For security reasons, set HttpOnly to true
-             secure: false,
-             sameSite: 'none', // Helps with CSRF protection
+             httpOnly: true, 
+             secure: true,
+             sameSite: 'none', 
            });
          res.status(200).json(user_info)
-            
-
-
     }
 
    

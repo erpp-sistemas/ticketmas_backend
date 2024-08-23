@@ -29,6 +29,8 @@ export class UserDatasourceImpl extends UserDatasource {
                 rol:{include:{rol:true}}
             }
         })
+        console.log(dataUser);
+        
 
         const vinculacion=await prismaTicketMas.usuarios_vinculaciones.findFirst({
             where:{id:dataUser?.id_usuario}

@@ -95,7 +95,7 @@ model tickets {
   fecha_inicio   DateTime
   fecha_fin      DateTime?
   asunto         String
-  descripcion    String
+  descripcion    String        @db.Text
   prioridad_id   Int
   estatus_id     Int
   area_id        Int
